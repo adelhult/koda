@@ -7,8 +7,8 @@ Well, mostly just for fun and as a programming exercise. But a language/applicat
 However, it is of course preferable to learn an actually usable language with conventional syntax.
 
 ### How do use Koda?
-Download the executable file, and drag a .kod or .lua file on top of it to run that file. Alternatively, you can of course add Koda to your path and run:
-`Koda filename.kod`
+Download the executable file, and drag a *.kod* or *.lua* file on top of it to run that file. Alternatively, you can of course add Koda to your path and run:
+`koda filename.kod`
 
 ### Example code
 ```
