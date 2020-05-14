@@ -4,9 +4,9 @@ Koda is a small application that provides an "abstraction layer" on top of the L
 ### Why create such a thing?
 Well, mostly just for fun and as a programming exercise. But a language/application such as Koda might be a bit useful if you try explaining programming to young children. Syntax in English can become barrier for young non-English speakers when trying to learn fundamental programming concepts. And being able to show a working code snippet with syntax in their native language can possibly make it easier to understand, in the same way as visual programming can be a helpful educational tool.
 
-However, it is of course preferable to learn an actually usable language with conventional syntax.
+However, it is of course preferable to learn an actually usable language with conventional syntax. 
 
-### How do use Koda?
+### How do I use Koda?
 [Download the executable file](https://github.com/adelhult/koda/releases/tag/v0.1), and drag a *.kod* or *.lua* file on top of it to run that file. Alternatively, you can of course add Koda to your path and run:
 `koda filename.kod`
 
