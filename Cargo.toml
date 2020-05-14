@@ -1,0 +1,11 @@
+[package]
+name = "koda"
+version = "0.1.0"
+authors = ["Eli Adelhult <hello@eli.nu>"]
+edition = "2018"
+
+[dependencies]
+rlua = "0.17.0"
+regex = "1.3.7"
+open = "1.4.0"
+dont_disappear = "2.1.11"

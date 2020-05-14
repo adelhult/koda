@@ -81,7 +81,7 @@ slut
 
 -- Fler funktioner:
 -- gemener(s)       - kallar på string.lower(s)
--- versaler(s)       - kallar på string.upper(s)
+-- versaler(s)      - kallar på string.upper(s)
 -- tillsträng(n)    - kallar på tostring(n)
 -- tillnummer(s)    - kallar på tonumber(s)
 
