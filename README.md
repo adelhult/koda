@@ -71,7 +71,7 @@ funktion plus_tio(x)
     ge (x + 10)
 slut
 
--- hämta namnet på de fil som körs:
+-- hämta namnet på den fil som körs:
 skriv(_filnamn)
 
 -- hämta eventuella cli argument:
