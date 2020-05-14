@@ -71,6 +71,14 @@ funktion plus_tio(x)
     ge (x + 10)
 slut
 
+-- hämta namnet på de fil som körs:
+skriv(_filnamn)
+
+-- hämta eventuella cli argument:
+för k, v i ipar(_parametrar) gör
+    skriv(v)
+slut
+
 -- Fler funktioner:
 -- gemener(s)       - kallar på string.lower(s)
 -- versaler(s)       - kallar på string.upper(s)
