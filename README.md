@@ -88,7 +88,7 @@ slut
 -- Alla nyckelord:
 -- och      - and
 -- bryt     - break
--- do       - gör
+-- gör      - do
 -- annars   - else
 -- annarsom - elseif
 -- slut     - end
