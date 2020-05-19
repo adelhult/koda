@@ -1,11 +1,11 @@
-use std::fs;
-use std::env;
-use std::path::PathBuf;
-use std::io::{stdin,stdout,Write};
-use std::collections::HashMap;
-use rlua::{Lua, Error};
 use dont_disappear::enter_to_continue;
 use regex::Regex;
+use rlua::{Error, Lua};
+use std::collections::HashMap;
+use std::env;
+use std::fs;
+use std::io::{stdin, stdout, Write};
+use std::path::PathBuf;
 
 fn main() {
     let args: Vec<String> = env::args().skip(1).collect();
@@ -29,15 +29,14 @@ fn start_with_args(args: Vec<String>) {
             return;
         }
         Some(extension) => {
-            if !(extension == "lua" ||extension == "kod") {
+            if !(extension == "lua" || extension == "kod") {
                 println!("Du måste ange en fil som slutar med .kod eller .lua");
                 return;
             }
         }
     }
 
-    let raw_code = fs::read_to_string(&filename)
-        .expect("Failed to read the given file.");
+    let raw_code = fs::read_to_string(&filename).expect("Failed to read the given file.");
 
     // parse raw_code. First, replace keywords and then convert swe characters.
     let code = convert_swe_characters(&replace_keywords(&raw_code));
@@ -48,14 +47,20 @@ fn start_with_args(args: Vec<String>) {
         Err(error) => {
             println!("Hoppsan! Det finns ett problem i din kod! \n");
             match error {
-                Error::SyntaxError{message, ..} => {
+                Error::SyntaxError { message, .. } => {
                     println!("Det är ett syntax-fel som har uppstått.");
                     println!("De brukar bero på att man stavat fel på en variabel eller glömt något tecken.");
-                    println!("Här är ett meddelande på engelska som berättar om felet: {}", message);
-                },
+                    println!(
+                        "Här är ett meddelande på engelska som berättar om felet: {}",
+                        message
+                    );
+                }
                 Error::RuntimeError(message) => {
                     println!("Det är ett runtime-fel som har uppstått.");
-                    println!("Här är ett meddelande på engelska som berättar om felet: {}", message);
+                    println!(
+                        "Här är ett meddelande på engelska som berättar om felet: {}",
+                        message
+                    );
                 }
                 e => {
                     println!("Här är en text på engelska där felet förklaras: {:?}", e);
@@ -73,7 +78,7 @@ fn run_code(code: String, arguments: &[String]) -> Result<(), Error> {
         let globals = lua_ctx.globals();
         globals.set("_filnamn", arguments[0].clone())?;
 
-        // add env arguments to argument_table, 
+        // add env arguments to argument_table,
         // skipping the first one (filename).
         let arguments_table = lua_ctx.create_table()?;
         for (i, arg) in arguments.iter().skip(1).enumerate() {
@@ -91,7 +96,7 @@ fn run_code(code: String, arguments: &[String]) -> Result<(), Error> {
         globals.set("skriv", skriv)?;
 
         // a function to handle user input
-        let ask = lua_ctx.create_function(|_, msg:String| {
+        let ask = lua_ctx.create_function(|_, msg: String| {
             let mut response = String::new();
             println!("{}", msg);
             let _ = stdout().flush();
@@ -117,46 +122,53 @@ fn run_code(code: String, arguments: &[String]) -> Result<(), Error> {
         globals.set("oeppna", open_fn)?;
 
         // pairs function translated to swe
-        lua_ctx.load(r#"function par(t) return pairs(t) end"#)
+        lua_ctx
+            .load(r#"function par(t) return pairs(t) end"#)
             .set_name("par() function")?
             .exec()?;
-        
+
         // ipairs function translated to swe
-        lua_ctx.load(r#"function ipar(t) return ipairs(t) end"#)
+        lua_ctx
+            .load(r#"function ipar(t) return ipairs(t) end"#)
             .set_name("ipar() function")?
             .exec()?;
-        
+
         // lower function
-        lua_ctx.load(r#"function gemener(s) return string.lower(s) end"#)
+        lua_ctx
+            .load(r#"function gemener(s) return string.lower(s) end"#)
             .set_name("gemener() function")?
             .exec()?;
-        
+
         // upper function
-        lua_ctx.load(r#"function versaler(s) return string.upper(s) end"#)
+        lua_ctx
+            .load(r#"function versaler(s) return string.upper(s) end"#)
             .set_name("versaler() function")?
-            .exec()?; 
+            .exec()?;
 
         // random function
-        lua_ctx.load(r#"function slumpa(a, b) return math.random(a, b) end"#)
+        lua_ctx
+            .load(r#"function slumpa(a, b) return math.random(a, b) end"#)
             .set_name("slumpa() function")?
-            .exec()?;     
-        
+            .exec()?;
+
         // random dice function
-        lua_ctx.load(r#"function tae2rning() return math.random(6) end"#)
+        lua_ctx
+            .load(r#"function tae2rning() return math.random(6) end"#)
             .set_name("tärning() function")?
             .exec()?;
-        
+
         // tostring in swedish
-        lua_ctx.load(r#"function tillstrae2ng(n) return tostring(n) end"#)
+        lua_ctx
+            .load(r#"function tillstrae2ng(n) return tostring(n) end"#)
             .set_name("tilsträng() function")?
             .exec()?;
 
-        // tonumber in swedish 
-        lua_ctx.load(r#"function tillnummer(s) return tonumber(s) end"#)
+        // tonumber in swedish
+        lua_ctx
+            .load(r#"function tillnummer(s) return tonumber(s) end"#)
             .set_name("tillnummer() function")?
             .exec()?;
-        
-        
+
         // Finally, execute the users code.
         lua_ctx.load(&code).exec()?;
 
@@ -173,7 +185,7 @@ fn convert_swe_characters(code: &str) -> String {
     enum LookingFor {
         SingleQuote,
         DoubleQuote,
-        Both
+        Both,
     }
 
     let code_as_string = String::from(code);
@@ -188,40 +200,40 @@ fn convert_swe_characters(code: &str) -> String {
             (LookingFor::Both, '\"') => {
                 inside_string = true;
                 looking_for = LookingFor::DoubleQuote;
-            },
+            }
             // a second double quote was found = end of string.
             (LookingFor::DoubleQuote, '\"') => {
                 inside_string = false;
                 looking_for = LookingFor::Both;
-            },
+            }
             // found first single qoute = now inside of string.
             (LookingFor::Both, '\'') => {
                 inside_string = true;
                 looking_for = LookingFor::SingleQuote;
-            },
+            }
             // found second single qoute = end of string.
             (LookingFor::SingleQuote, '\'') => {
                 inside_string = false;
                 looking_for = LookingFor::Both;
-            },
-            _ => ()
+            }
+            _ => (),
         }
 
         match (inside_string, c) {
-            (false, 'å')    => parsed_code.push("ae1".to_string()),
-            (false, 'ä')    => parsed_code.push("ae2".to_string()),
-            (false, 'ö')    => parsed_code.push("oe".to_string()),
-            (false ,'Å')    => parsed_code.push("AE1".to_string()),
-            (false, 'Ä')    => parsed_code.push("AE2".to_string()),
-            (false, 'Ö')    => parsed_code.push("OE".to_string()),
-            (_, letter)     => parsed_code.push(letter.to_string())
+            (false, 'å') => parsed_code.push("ae1".to_string()),
+            (false, 'ä') => parsed_code.push("ae2".to_string()),
+            (false, 'ö') => parsed_code.push("oe".to_string()),
+            (false, 'Å') => parsed_code.push("AE1".to_string()),
+            (false, 'Ä') => parsed_code.push("AE2".to_string()),
+            (false, 'Ö') => parsed_code.push("OE".to_string()),
+            (_, letter) => parsed_code.push(letter.to_string()),
         }
     }
     parsed_code.join("")
 }
 
 /// Convert keywords in swedish to real lua keywords
-fn replace_keywords(code: &str) -> String{
+fn replace_keywords(code: &str) -> String {
     let mut parsed_code = String::from(code);
 
     let keywords: HashMap<&str, Regex> = [
@@ -237,7 +249,7 @@ fn replace_keywords(code: &str) -> String{
         ("if",          Regex::new(r"\bom\b").unwrap()),
         ("in",          Regex::new(r"\bi\b").unwrap()),
         ("local",       Regex::new(r"\blokal\b").unwrap()),
-        //("nil",         Regex::new(r"\bingenting\b").unwrap()),
+        //("nil",       Regex::new(r"\bingenting\b").unwrap()),
         ("not",         Regex::new(r"\binte\b").unwrap()),
         ("or",          Regex::new(r"\beller\b").unwrap()),
         ("repeat",      Regex::new(r"\bupprepa\b").unwrap()),
@@ -246,8 +258,11 @@ fn replace_keywords(code: &str) -> String{
         ("true",        Regex::new(r"\bsant\b").unwrap()),
         ("until",       Regex::new(r"\btills\b").unwrap()),
         ("while",       Regex::new(r"\bmedans\b").unwrap()),
-    ].iter().cloned().collect();
-    
+    ]
+    .iter()
+    .cloned()
+    .collect();
+
     for (keyword_eng, re) in keywords {
         parsed_code = re.replace_all(&parsed_code, keyword_eng).into();
     }
