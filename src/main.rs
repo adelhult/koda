@@ -16,7 +16,7 @@ fn main() {
 /// Take cli args, check if a valid code file exists,
 /// then execute code and handle potential errors.
 fn start_with_args(args: Vec<String>) {
-    if args.len() < 1 {
+    if args.is_empty() {
         println!("Du måste ange en fil!");
         return;
     }
@@ -48,27 +48,24 @@ fn start_with_args(args: Vec<String>) {
         Err(error) => {
             println!("Hoppsan! Det finns ett problem i din kod! \n");
             match error {
-                Error::SyntaxError{message, incomplete_input: _} => {
+                Error::SyntaxError{message, ..} => {
                     println!("Det är ett syntax-fel som har uppstått.");
                     println!("De brukar bero på att man stavat fel på en variabel eller glömt något tecken.");
                     println!("Här är ett meddelande på engelska som berättar om felet: {}", message);
-                    return;
                 },
                 Error::RuntimeError(message) => {
                     println!("Det är ett runtime-fel som har uppstått.");
                     println!("Här är ett meddelande på engelska som berättar om felet: {}", message);
-                    return;
                 }
                 e => {
                     println!("Här är en text på engelska där felet förklaras: {:?}", e);
-                    return;
                 }
             }
         }
     }
 }
 
-fn run_code(code: String, arguments: &Vec<String>) -> Result<(), Error> {
+fn run_code(code: String, arguments: &[String]) -> Result<(), Error> {
     let lua = Lua::new();
 
     lua.context(|lua_ctx| {
