@@ -24,7 +24,7 @@ syn region  kodaComment  start="--\[" end="--]" contains=@kodaCommentGrp
 
 syn match kodaFuncCall  "\I\+\s*\((\)\@="
 syn match kodaIdent     "\I\+\s*\(=\s\)\@="
-syn match kodaQuantPlus "==\|\*\|+\|-\(-\)\@!\|\/\|\.\."
+syn match kodaQuantPlus ">=\|<=\|==\|\*\|+\|-\(-\)\@!\|\/\|\.\.\|<\|>\|\~=\|%"
 syn match kodaDict      "\I\+\(\.\)\@="
 
 hi def link kodaConstant    Boolean
