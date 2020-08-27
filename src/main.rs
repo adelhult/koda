@@ -193,30 +193,38 @@ fn convert_swe_characters(code: &str) -> String {
     let mut parsed_code: Vec<String> = vec![];
     let mut inside_string = false;
     let mut looking_for: LookingFor = LookingFor::Both;
+    let mut next_escaped : bool = false;
 
     for c in characters {
-        match (&looking_for, c) {
-            // found first double qoute = now inside of string.
-            (LookingFor::Both, '\"') => {
-                inside_string = true;
-                looking_for = LookingFor::DoubleQuote;
+        if !next_escaped {
+            match (&looking_for, c) {
+                // found first double qoute = now inside of string.
+                (LookingFor::Both, '\"') => {
+                    inside_string = true;
+                    looking_for = LookingFor::DoubleQuote;
+                }
+                // a second double quote was found = end of string.
+                (LookingFor::DoubleQuote, '\"') => {
+                    inside_string = false;
+                    looking_for = LookingFor::Both;
+                }
+                // found first single qoute = now inside of string.
+                (LookingFor::Both, '\'') => {
+                    inside_string = true;
+                    looking_for = LookingFor::SingleQuote;
+                }
+                // found second single qoute = end of string.
+                (LookingFor::SingleQuote, '\'') => {
+                    inside_string = false;
+                    looking_for = LookingFor::Both;
+                }
+                (_, '\\') => {
+                    next_escaped = true;
+                }
+                _ => (),
             }
-            // a second double quote was found = end of string.
-            (LookingFor::DoubleQuote, '\"') => {
-                inside_string = false;
-                looking_for = LookingFor::Both;
-            }
-            // found first single qoute = now inside of string.
-            (LookingFor::Both, '\'') => {
-                inside_string = true;
-                looking_for = LookingFor::SingleQuote;
-            }
-            // found second single qoute = end of string.
-            (LookingFor::SingleQuote, '\'') => {
-                inside_string = false;
-                looking_for = LookingFor::Both;
-            }
-            _ => (),
+        } else {
+            next_escaped = false;
         }
 
         match (inside_string, c) {
@@ -226,7 +234,7 @@ fn convert_swe_characters(code: &str) -> String {
             (false, 'Å') => parsed_code.push("AE1".to_string()),
             (false, 'Ä') => parsed_code.push("AE2".to_string()),
             (false, 'Ö') => parsed_code.push("OE".to_string()),
-            (_, letter) => parsed_code.push(letter.to_string()),
+            (_,  letter) => parsed_code.push(letter.to_string()),
         }
     }
     parsed_code.join("")
@@ -257,7 +265,7 @@ fn replace_keywords(code: &str) -> String {
         ("then",        Regex::new(r"\butför\b").unwrap()),
         ("true",        Regex::new(r"\bsant\b").unwrap()),
         ("until",       Regex::new(r"\btills\b").unwrap()),
-        ("while",       Regex::new(r"\bmedans\b").unwrap()),
+        ("while",       Regex::new(r"\bmedan\b").unwrap()),
     ]
     .iter()
     .cloned()
