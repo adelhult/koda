@@ -108,3 +108,11 @@ slut
 -- utför    - then
 -- medan    - while
 ```
+
+### Vim installation
+To install syntax highlighting for koda, put the [vim file](koda.vim) in `~/.vim/syntax/` and add the following line to `~/.vim/ftdetect/kod.vim`. Where `~/.vim/` is your default vim directory.
+
+```vim
+au BufRead,BufNewFile *.kod set filetype=koda
+```
+A nice example of [koda in Gruvbox](https://imgur.com/a/rZOq8yZ).
