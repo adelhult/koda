@@ -52,18 +52,21 @@ fn start_with_args(args: Vec<String>) {
                     println!("De brukar bero på att man stavat fel på en variabel eller glömt något tecken.");
                     println!(
                         "Här är ett meddelande på engelska som berättar om felet: {}",
-                        message
+                        show_swedish(&message)
                     );
                 }
                 Error::RuntimeError(message) => {
                     println!("Det är ett runtime-fel som har uppstått.");
                     println!(
                         "Här är ett meddelande på engelska som berättar om felet: {}",
-                        message
+                        show_swedish(&message)
                     );
                 }
                 e => {
-                    println!("Här är en text på engelska där felet förklaras: {:?}", e);
+                    println!("Här är en text på engelska där felet förklaras: {}", 
+                             //FIXME needs to call show_swedish but has wrong type
+                             e
+                    );
                 }
             }
         }
@@ -112,14 +115,14 @@ fn run_code(code: String, arguments: &[String]) -> Result<(), Error> {
 
             Ok(response)
         })?;
-        globals.set("frae1ga", ask)?;
+        globals.set("fr__ao__ga", ask)?;
 
         // open function to open websites and files
         let open_fn = lua_ctx.create_function(|_, s: String| {
             open::that(&s).unwrap();
             Ok(())
         })?;
-        globals.set("oeppna", open_fn)?;
+        globals.set("__oe__ppna", open_fn)?;
 
         // pairs function translated to swe
         lua_ctx
@@ -153,13 +156,13 @@ fn run_code(code: String, arguments: &[String]) -> Result<(), Error> {
 
         // random dice function
         lua_ctx
-            .load(r#"function tae2rning() return math.random(6) end"#)
+            .load(r#"function t__ae__rning() return math.random(6) end"#)
             .set_name("tärning() function")?
             .exec()?;
 
         // tostring in swedish
         lua_ctx
-            .load(r#"function tillstrae2ng(n) return tostring(n) end"#)
+            .load(r#"function tillstr__ae__ng(n) return tostring(n) end"#)
             .set_name("tilsträng() function")?
             .exec()?;
 
@@ -193,43 +196,74 @@ fn convert_swe_characters(code: &str) -> String {
     let mut parsed_code: Vec<String> = vec![];
     let mut inside_string = false;
     let mut looking_for: LookingFor = LookingFor::Both;
+    let mut next_escaped : bool = false;
 
     for c in characters {
-        match (&looking_for, c) {
-            // found first double qoute = now inside of string.
-            (LookingFor::Both, '\"') => {
-                inside_string = true;
-                looking_for = LookingFor::DoubleQuote;
+        if !next_escaped {
+            match (&looking_for, c) {
+                // found first double qoute = now inside of string.
+                (LookingFor::Both, '\"') => {
+                    inside_string = true;
+                    looking_for = LookingFor::DoubleQuote;
+                }
+                // a second double quote was found = end of string.
+                (LookingFor::DoubleQuote, '\"') => {
+                    inside_string = false;
+                    looking_for = LookingFor::Both;
+                }
+                // found first single qoute = now inside of string.
+                (LookingFor::Both, '\'') => {
+                    inside_string = true;
+                    looking_for = LookingFor::SingleQuote;
+                }
+                // found second single qoute = end of string.
+                (LookingFor::SingleQuote, '\'') => {
+                    inside_string = false;
+                    looking_for = LookingFor::Both;
+                }
+                (_, '\\') => {
+                    next_escaped = true;
+                }
+                _ => (),
             }
-            // a second double quote was found = end of string.
-            (LookingFor::DoubleQuote, '\"') => {
-                inside_string = false;
-                looking_for = LookingFor::Both;
-            }
-            // found first single qoute = now inside of string.
-            (LookingFor::Both, '\'') => {
-                inside_string = true;
-                looking_for = LookingFor::SingleQuote;
-            }
-            // found second single qoute = end of string.
-            (LookingFor::SingleQuote, '\'') => {
-                inside_string = false;
-                looking_for = LookingFor::Both;
-            }
-            _ => (),
+        } else {
+            next_escaped = false;
         }
 
         match (inside_string, c) {
-            (false, 'å') => parsed_code.push("ae1".to_string()),
-            (false, 'ä') => parsed_code.push("ae2".to_string()),
-            (false, 'ö') => parsed_code.push("oe".to_string()),
-            (false, 'Å') => parsed_code.push("AE1".to_string()),
-            (false, 'Ä') => parsed_code.push("AE2".to_string()),
-            (false, 'Ö') => parsed_code.push("OE".to_string()),
-            (_, letter) => parsed_code.push(letter.to_string()),
+            // names like this are not convension, and such
+            // are unlikely to collide with user definitions
+            (false, 'å') => parsed_code.push("__ao__".to_string()),
+            (false, 'ä') => parsed_code.push("__ae__".to_string()),
+            (false, 'ö') => parsed_code.push("__oe__".to_string()),
+            (false, 'Å') => parsed_code.push("__AO__".to_string()),
+            (false, 'Ä') => parsed_code.push("__AE__".to_string()),
+            (false, 'Ö') => parsed_code.push("__OE__".to_string()),
+            (_,  letter) => parsed_code.push(letter.to_string()),
         }
     }
     parsed_code.join("")
+}
+
+/// Convert compiler defined åäö replacements
+/// for showing in error messages
+fn show_swedish(msg: &str) -> String {
+    let mut replaced_msg = String::from(msg);
+
+    let idents : HashMap<&str, Regex> = [
+        ("å", Regex::new(r"__ao__").unwrap()),
+        ("ä", Regex::new(r"__ae__").unwrap()),
+        ("ö", Regex::new(r"__oe__").unwrap()),
+        ("Å", Regex::new(r"__AO__").unwrap()),
+        ("Ä", Regex::new(r"__AE__").unwrap()),
+        ("Ö", Regex::new(r"__OE__").unwrap()),
+    ].iter().cloned().collect();
+
+    for (ident_sve, re) in idents {
+        replaced_msg = re.replace_all(&replaced_msg, ident_sve).into()
+    }
+
+    replaced_msg
 }
 
 /// Convert keywords in swedish to real lua keywords
@@ -257,7 +291,7 @@ fn replace_keywords(code: &str) -> String {
         ("then",        Regex::new(r"\butför\b").unwrap()),
         ("true",        Regex::new(r"\bsant\b").unwrap()),
         ("until",       Regex::new(r"\btills\b").unwrap()),
-        ("while",       Regex::new(r"\bmedans\b").unwrap()),
+        ("while",       Regex::new(r"\bmedan\b").unwrap()),
     ]
     .iter()
     .cloned()

@@ -46,7 +46,7 @@ slut
 
 -- while-loop
 x = 0
-medans x > 100 gör
+medan x > 100 gör
     skriv("hej!")
 slut
 
@@ -106,5 +106,5 @@ slut
 -- tills    - until
 -- ge       - return
 -- utför    - then
--- medans   - while
+-- medan    - while
 ```
