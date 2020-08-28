@@ -27,6 +27,10 @@ syn match kodaIdent     "\I\+\s*\(=\s\)\@="
 syn match kodaQuantPlus ">=\|<=\|==\|\*\|+\|-\(-\)\@!\|\/\|\.\.\|<\|>\|\~=\|%"
 syn match kodaDict      "\I\+\(\.\)\@="
 
+syn match kodaInt   '\d\+'
+syn match kodaInt   '[-+]\d\+'
+syn match kodaFloat '[-+]\d\+\.\d*'
+
 hi def link kodaConstant    Boolean
 hi def link kodaLocal       StorageClass
 hi def link kodaOperator    Operator
@@ -40,6 +44,8 @@ hi def link kodaFuncCall    Function
 hi def link kodaIdent       Structure
 hi def link kodaQuantPlus   Special
 hi def link kodaDict        Structure
+hi def link kodaInt         Number
+hi def link kodaFloat       Float
 hi def link kodaCommentTodo Todo
 hi def link kodaComment     Comment
 
