@@ -62,8 +62,6 @@ pub fn run_lua_code(code: &str, arguments: &[String]) -> Result<(), rlua::Error>
             .load(get_prelude())
             .set_name("Koda prelude")?
             .exec()?;
-
-        // TODO: load a prelude of functions with swedish names!!
         
         // Finally, execute the users code.
         lua_ctx.load(&code).exec()?;
