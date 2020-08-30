@@ -54,7 +54,7 @@ fn main() {
                 }
                 e => {
                     println!("Här är en text på engelska där felet förklaras: {}", 
-                             e
+                             show_swedish(&(e.to_string()))
                     );
                 }
             }
