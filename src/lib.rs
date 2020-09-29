@@ -2,8 +2,22 @@ use regex::Regex;
 use rlua::{Lua};
 use std::collections::HashMap;
 use std::io::{stdin, stdout, Write};
+
 mod prelude;
+mod lexer;
 use prelude::{get_prelude};
+use lexer::{Token, lex};
+
+/// Transpile from Koda code to valid Lua code
+pub fn transpile(code: &str) -> String {
+    let code = lex(&code)
+                .iter()
+                .map(|token| convert_token(token))
+                .collect::<Vec<String>>()
+                .join(" ");
+    
+    code
+}
 
 /// Run the transpiled lua code
 pub fn run_lua_code(code: &str, arguments: &[String]) -> Result<(), rlua::Error>{
@@ -72,203 +86,59 @@ pub fn run_lua_code(code: &str, arguments: &[String]) -> Result<(), rlua::Error>
     Ok(())
 }
 
-
-/// Transpile from Koda code to valid Lua code
-pub fn transpile(code: &str) -> String {
-    let segments = to_segments(&code);
-    let code = segments
-                .iter()
-                .map(|segment| convert_segment(segment))
-                .collect::<Vec<String>>()
-                .join(" ");
-    
-    code
-}
-
-
-#[derive(Debug)]
-enum Segment {
-    Code(String),
-    Str(String),
-}
-
-
-/// Convert code to a vector of Segments
-fn to_segments(code: &str) -> Vec<Segment>{
-    let cleaned_code = without_comments(&code);
-    let chars: Vec<char> = cleaned_code.chars().collect();
-    let mut segments: Vec<Segment> = vec![];
-    
-    let mut next_escaped = false;
-    let mut searching_for: Option<Divider> = None;
-    let mut last = 0;
-    
-    for (index, c) in chars.iter().enumerate() {
-        if next_escaped {
-            next_escaped = false;
-            continue;
-        }
-        match (is_divider(&c), &searching_for) {
-            // Found a space outside of a string
-            // add a code segment
-            (Some(Divider::Space), None) => {
-                if let Some(segment) = new_code_segment(last, index, &chars) {
-                    segments.push(segment);
-                }
-                last = index + 1;
-            },
-            // Found first double qoute,
-            // add the code segment and look for end of string
-            (Some(Divider::DoubleQoute), None) => {
-                searching_for = Some(Divider::DoubleQoute);
-                if let Some(segment) = new_code_segment(last, index, &chars) {
-                    segments.push(segment);
-                }
-                last = index;
-            },
-            // Found second double qoute, add the string segment
-            (Some(Divider::DoubleQoute), Some(Divider::DoubleQoute)) => {
-                searching_for = None;
-                if let Some(segment) = new_str_segment(last, index, &chars) {
-                    segments.push(segment);
-                }
-                last = index + 1;
-            },
-            // Found first single qoute,
-            // add the code segment and look for end of string
-            (Some(Divider::SingleQoute), None) => {
-                searching_for = Some(Divider::SingleQoute);
-                if let Some(segment) = new_code_segment(last, index, &chars) {
-                    segments.push(segment);
-                }
-                last = index;
-            },
-            // Found second single qoute, add the string segment
-            (Some(Divider::SingleQoute), Some(Divider::SingleQoute)) => {
-                if let Some(segment) = new_str_segment(last, index, &chars) {
-                    segments.push(segment);
-                }
-                last = index + 1;
-            },
-            _ => {
-                // Check for escape characters
-                if *c == '\\' {
-                   next_escaped = true;
-                }
-            }
-        }
-    }
-    // Finally, add the end of the file as a code segment:
-    if last < chars.len() {
-        if let Some(segment) = new_code_segment(last, chars.len(), &chars) {
-            segments.push(segment);
-        }
-    }
-
-    segments
-}
-
-
-/// Returns a copy of the code, but without any commentss
-fn without_comments(code: &str) -> String{
-    // Note, the Koda spec does not support multi-line comments
-    let re = Regex::new(r"--.*").unwrap(); 
-    re.replace_all(&code, "").into()
-}
-
-
-#[derive(Debug)]
-enum Divider {
-    SingleQoute,
-    DoubleQoute,
-    Space,
-}
-
-
-/// Determine if a char is a divider
-fn is_divider(c: &char) -> Option<Divider> {
-    match c {
-        '\"'    => Some(Divider::DoubleQoute),
-        '\''    => Some(Divider::SingleQoute),
-        '\t'    => Some(Divider::Space),
-        ' '     => Some(Divider::Space),
-        '\n'    => Some(Divider::Space),
-        _       => None
+/// Convert Token to Lua code (stored in a String).
+fn convert_token(token: &Token) -> String{
+    match token {
+        Token::And                  => "and".to_string(),
+        Token::Break                => "break".to_string(),
+        Token::Do                   => "do".to_string(),
+        Token::Else                 => "else".to_string(),
+        Token::Elseif               => "elseif".to_string(),
+        Token::End                  => "end".to_string(),
+        Token::False                => "false".to_string(),
+        Token::For                  => "for".to_string(),
+        Token::Function             => "function".to_string(),
+        Token::If                   => "if".to_string(),
+        Token::In                   => "in".to_string(),
+        Token::Local                => "local".to_string(),
+        Token::Not                  => "not".to_string(),
+        Token::Or                   => "or".to_string(),
+        Token::Repeat               => "repeat".to_string(),
+        Token::Return               => "return".to_string(),
+        Token::True                 => "true".to_string(),
+        Token::Until                => "until".to_string(),
+        Token::While                => "while".to_string(),
+        Token::Then                 => "then".to_string(),
+        Token::LeftParenthesis      => "(".to_string(),
+        Token::RightParenthesis     => ")".to_string(),
+        Token::LeftCurly            => "{".to_string(),
+        Token::RightCurly           => "}".to_string(),
+        Token::LeftBracket          => "[".to_string(),
+        Token::RightBracket         => "]".to_string(),
+        Token::Period               => ".".to_string(),
+        Token::Comma                => ",".to_string(),
+        Token::Colon                => ":".to_string(),
+        Token::SemiColon            => ";".to_string(),
+        Token::AssignmentOperator   => "=".to_string(),
+        Token::Concat               => "..".to_string(),
+        Token::LengthOperator       => "#".to_string(),
+        Token::Equal                => "==".to_string(),
+        Token::NotEqual             =>"~=".to_string(),
+        Token::GreaterThan          => ">".to_string(),
+        Token::LessThan             => "<".to_string(),
+        Token::GreaterOrEqual       => ">=".to_string(),
+        Token::LessOrEqual          => "<=".to_string(),
+        Token::Multiply             => "*".to_string(),
+        Token::Divide               => "/".to_string(),
+        Token::Modulus              => "%".to_string(),
+        Token::Add                  => "+".to_string(),
+        Token::Subtract             => "-".to_string(),
+        Token::Exponent             => "^".to_string(),
+        Token::Str(value)           => value.clone(),
+        Token::Ident(value)         => replace_swe_chars(&value),
+        _                           => String::from("")
     }
 }
-
-
-/// Helper function that creates a code segment
-fn new_code_segment(last: usize, index: usize, chars: &Vec<char>) -> Option<Segment>{
-    if last != index {
-        let mut content = chars[last..index]
-                            .iter()
-                            .cloned()
-                            .collect::<String>();
-        
-        content.retain(|c| !c.is_whitespace());
-        
-        if content != "" {
-            return Some(Segment::Code(content));
-        }
-    }
-   None
-}
-
-
-/// Helper function that creates a str segment
-fn new_str_segment(last: usize, index: usize, chars: &Vec<char>) -> Option<Segment>{
-    if last != index {
-        let content = chars[last..(index + 1)]
-                        .iter()
-                        .cloned()
-                        .collect::<String>();
-        return Some(Segment::Str(content));
-    }
-   None
-}
-
-
-/// Convert a Segment to valid code
-fn convert_segment(segment: &Segment) -> String{
-    match segment {
-        Segment::Str(content) => content.to_owned(),
-        Segment::Code(content) => {
-            let mut updated_code = replace_keywords(&content);
-            updated_code = replace_swe_chars(&updated_code);
-            updated_code
-        }
-    }
-}
-
-
-/// Replace one of Koda's keywords with one of Lua's
-fn replace_keywords(code: &str) -> String {
-    match code {
-        "och"       => String::from("and"),
-        "bryt"      => String::from("break"),
-        "gör"       => String::from("do"),
-        "annars"    => String::from("else"),
-        "annarsom"  => String::from("elseif"),
-        "slut"      => String::from("end"),
-        "falskt"    => String::from("false"),
-        "för"       => String::from("for"),
-        "funktion"  => String::from("function"),
-        "om"        => String::from("if"),
-        "i"         => String::from("in"),
-        "lokal"     => String::from("local"),
-        "inte"      => String::from("not"),
-        "eller"     => String::from("or"),
-        "upprepa"   => String::from("repeat"),
-        "ge"        => String::from("return"),
-        "sant"      => String::from("true"),
-        "tills"     => String::from("until"),
-        "medan"     => String::from("while"),
-        "utför"     => String::from("then"),
-        non_keyword => String::from(non_keyword)
-    }
-}
-
 
 /// Convert the swedish characters "åäöÅÄÖ" 
 /// to a representation that only uses English characters

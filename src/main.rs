@@ -1,5 +1,4 @@
 use rlua::{Error};
-use dont_disappear::enter_to_continue;
 use koda::{run_lua_code, transpile, show_swedish};
 use std::path::PathBuf;
 use::std::env;
@@ -28,40 +27,41 @@ fn main() {
             }
         }
     }
-    
-    
-    let raw_code = fs::read_to_string(filename).expect("Misslyckades med att läsa filen");
+      
+    let raw_code = fs::read_to_string(filename)
+        .expect("Misslyckades med att läsa filen");
+        
     let lua_code = transpile(&raw_code);
+
     match run_lua_code(&lua_code, &args) {
         Ok(_) => (),
-        Err(error) => {
-            println!("Hoppsan! Det finns ett problem i din kod! \n");
-            match error {
-                Error::SyntaxError { message, .. } => {
-                    println!("Det är ett syntax-fel som har uppstått.");
-                    println!("De brukar bero på att man stavat fel på en variabel eller glömt något tecken.");
-                    println!(
-                        "Här är ett meddelande på engelska som berättar om felet: {}",
-                        show_swedish(&message)
-                    );
-                }
-                Error::RuntimeError(message) => {
-                    println!("Det är ett runtime-fel som har uppstått.");
-                    println!(
-                        "Här är ett meddelande på engelska som berättar om felet: {}",
-                        show_swedish(&message)
-                    );
-                }
-                e => {
-                    println!("Här är en text på engelska där felet förklaras: {}", 
-                             show_swedish(&(e.to_string()))
-                    );
-                }
-            }
-        }
+        Err(error) => handle_error(error)
     }
+}
 
-    if cfg!(windows) {
-        enter_to_continue::custom_msg("Tryck på ENTER-tangenten för att avsluta programmet.");
+/// Log error messages to the end user
+fn handle_error(error: Error) {
+    println!("Hoppsan! Det finns ett problem i din kod! \n");
+    match error {
+        Error::SyntaxError { message, .. } => {
+            println!("Det är ett syntax-fel som har uppstått.");
+            println!("De brukar bero på att man stavat fel på en variabel eller glömt något tecken.");
+            println!(
+                "Här är ett meddelande på engelska som berättar om felet: {}",
+                show_swedish(&message)
+            );
+        },
+        Error::RuntimeError(message) => {
+            println!("Det är ett runtime-fel som har uppstått.");
+            println!(
+                "Här är ett meddelande på engelska som berättar om felet: {}",
+                show_swedish(&message)
+             );
+        },
+        e => {
+            println!("Här är en text på engelska där felet förklaras: {}", 
+                show_swedish(&(e.to_string()))
+            );
+        }
     }
 }

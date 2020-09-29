@@ -10,3 +10,15 @@ pub fn get_prelude() -> &'static str {
         tillnummer = tonumber
     "#
 }
+
+/*
+nyttja metatables och skriv om dem!
+mt = getmetatable("")
+
+for _, functions in pairs(mt) do
+  for k,v in pairs(functions) do
+    print(k,v)
+  end
+end
+
+*/
