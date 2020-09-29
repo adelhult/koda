@@ -3,7 +3,7 @@ use logos::Logos;
 /// Lex the code into Tokens
 pub fn lex(code: &str) -> Vec<Token> {
     let lex = Token::lexer(&code);
-    lex.into_iter().collect()
+    lex.collect()
 }
 
 #[derive(Logos, Debug, PartialEq)]
@@ -108,6 +108,5 @@ pub enum Token {
     Ident(String),
     #[error]
     #[regex(r"[ \t\r\n\f]+", logos::skip)]
-
     Error
 }
