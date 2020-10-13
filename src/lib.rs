@@ -19,24 +19,28 @@ pub fn transpile(code: &str) -> String {
     code
 }
 
-/// Run the transpiled lua code
-pub fn run_lua_code(code: &str, arguments: &[String]) -> Result<(), rlua::Error>{
+pub fn get_lua_state(env: Option<Vec<String>>) -> Result<Lua, rlua::Error>{
     let lua = Lua::new();
     lua.context(|lua_ctx| {
-        // add "_filnanmn" to globals
         let globals = lua_ctx.globals();
-        globals.set("_filnamn", arguments[0].clone())?;
 
-        // add env arguments to argument_table,
-        // skipping the first one (filename).
-        let arguments_table = lua_ctx.create_table()?;
-        for (i, arg) in arguments.iter().skip(1).enumerate() {
-            arguments_table.set(i + 1, arg.clone())?;
+        // Add _filnamn and _parametrar as
+        // global constants if we have an env
+        if let Some(arguments) = env {
+            // add "_filnanmn" to globals
+            globals.set("_filnamn", arguments[0].clone())?;
+
+            // add env arguments to argument_table,
+            // skipping the first one (filename).
+            let arguments_table = lua_ctx.create_table()?;
+            for (i, arg) in arguments.iter().skip(1).enumerate() {
+                arguments_table.set(i + 1, arg.clone())?;
+            }
+
+            // add the arguments_table to the global scope of the lua_ctx.
+            // Note: the name should perhaps be changed.
+            globals.set("_parametrar", arguments_table)?;
         }
-
-        // add the arguments_table to the global scope of the lua_ctx.
-        // Note: the name should perhaps be changed.
-        globals.set("_parametrar", arguments_table)?;
 
         // a replacement for print with support for special characters.
         let skriv = lua_ctx.create_function(|_, msg: String| {
@@ -59,7 +63,6 @@ pub fn run_lua_code(code: &str, arguments: &[String]) -> Result<(), rlua::Error>
             if let Some('\r') = response.chars().next_back() {
                 response.pop();
             }
-
             Ok(response)
         })?;
         globals.set("fr__ao__ga", ask)?;
@@ -76,13 +79,18 @@ pub fn run_lua_code(code: &str, arguments: &[String]) -> Result<(), rlua::Error>
             .load(get_prelude())
             .set_name("Koda prelude")?
             .exec()?;
-        
-        // Finally, execute the users code.
-        lua_ctx.load(&code).exec()?;
-
         Ok(())
     })?;
+    Ok (lua)
+}
 
+/// Run the transpiled lua code
+pub fn run_lua_code(code: &str, arguments: &[String]) -> Result<(), rlua::Error>{
+    let lua = get_lua_state(Some(arguments.to_owned()))?;
+    lua.context(|lua_ctx| {
+        lua_ctx.load(&code).exec()?;
+        Ok(())
+    })?;
     Ok(())
 }
 
