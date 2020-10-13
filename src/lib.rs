@@ -1,5 +1,5 @@
 use regex::Regex;
-use rlua::{Lua};
+use rlua::{Lua, Value, Error};
 use std::collections::HashMap;
 use std::io::{stdin, stdout, Write};
 
@@ -19,7 +19,7 @@ pub fn transpile(code: &str) -> String {
     code
 }
 
-pub fn get_lua_state(env: Option<Vec<String>>) -> Result<Lua, rlua::Error>{
+pub fn get_lua_state(env: Option<Vec<String>>) -> Result<Lua, Error>{
     let lua = Lua::new();
     lua.context(|lua_ctx| {
         let globals = lua_ctx.globals();
@@ -84,7 +84,7 @@ pub fn get_lua_state(env: Option<Vec<String>>) -> Result<Lua, rlua::Error>{
 }
 
 /// Run the transpiled lua code
-pub fn run_lua_code(code: &str, arguments: &[String]) -> Result<(), rlua::Error>{
+pub fn run_lua_code(code: &str, arguments: &[String]) -> Result<(), Error>{
     let lua = get_lua_state(Some(arguments.to_owned()))?;
     lua.context(|lua_ctx| {
         lua_ctx.load(&code).exec()?;
@@ -170,7 +170,7 @@ fn replace_swe_chars(code: &str) -> String {
 
 /// Convert from the special strings to normal
 /// Swedish letters again
-pub fn show_swedish(msg: &str) -> String {
+pub fn show_swedish_chars(msg: &str) -> String {
     let mut replaced_msg = String::from(msg);
 
     let idents : HashMap<&str, Regex> = [
@@ -187,4 +187,46 @@ pub fn show_swedish(msg: &str) -> String {
     }
 
     replaced_msg
+}
+
+/// represent a rlua::Value in Swedish
+/// This function could be improved a lot
+pub fn show_swedish_values(value: &Value) -> String{
+    match value {
+        Value::Nil              => String::from("ingenting"),
+        Value::Boolean(false)   => String::from("falskt"),
+        Value::Boolean(true)    => String::from("sant"),
+        Value::LightUserData(_) => String::from("pekare (Light user data)"),
+        Value::Integer(x)       => x.to_string(),
+        Value::Number(x)        => x.to_string(),
+        Value::String(lua_str)  => format!("\"{}\"", lua_str.to_str().unwrap()),
+        Value::Table(_)         => String::from("tabell"),
+        Value::Function(_)      => String::from("funktion"),
+        Value::Thread(_)        => String::from("tråd"),
+        Value::UserData(_)      => String::from("userData"),
+        Value::Error(error)     => show_swedish_chars(&error.to_string()),
+    }
+}
+
+/// A string representation for rlua::Error
+pub fn error_repr(e: Error) -> String{
+    match e {
+        Error::SyntaxError { message, .. } => {
+            format!("Fel: Det är ett syntax-fel som har uppstått.\n\
+            De brukar bero på att man stavat fel på en variabel eller glömt något tecken.\n\
+            Här är ett meddelande på engelska som berättar om felet: \n{}", 
+            show_swedish_chars(&message))
+
+        },
+        Error::RuntimeError(message) => {
+            format!("Fel: Det är ett runtime-fel som har uppstått.\n\
+            Här är ett meddelande på engelska som berättar om felet: \n{}",
+            show_swedish_chars(&message))
+        },
+        e => {
+            format!("Fel: Här är en text på engelska där felet förklaras: \n{}", 
+                show_swedish_chars(&(e.to_string()))
+            )
+        }
+    }
 }
