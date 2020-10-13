@@ -121,6 +121,8 @@ fn convert_token(token: &Token) -> String{
         Token::Until                => "until".to_string(),
         Token::While                => "while".to_string(),
         Token::Then                 => "then".to_string(),
+        Token::Nil                  => "nil".to_string(),
+        Token::VarArgs              => "...".to_string(),
         Token::LeftParenthesis      => "(".to_string(),
         Token::RightParenthesis     => ")".to_string(),
         Token::LeftCurly            => "{".to_string(),

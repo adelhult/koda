@@ -19,7 +19,7 @@ However, it is of course preferable to learn an actually usable language with co
 ### Example code
 ```
 -- Koda, exempelkod
--- (Notera att all lua-kod också är giltig och går att skriva
+-- (Notera att alla lua-funktionsutrop är giltiga och går att använda
 -- precis som vanligt.)
 
 -- skriv text till användaren
@@ -92,27 +92,27 @@ slut
 -- tillnummer(s)    - kallar på tonumber(s)
 
 -- Alla nyckelord:
--- och      - and
--- bryt     - break
--- gör      - do
--- annars   - else
--- annarsom - elseif
--- slut     - end
--- falskt   - false
--- sant     - true
--- för      - for
--- funktion - function
--- om       - if
--- i        - in
--- lokal    - local
--- nil      - nil
--- inte     - not
--- eller    - or
--- upprepa  - repeat
--- tills    - until
--- ge       - return
--- utför    - then
--- medan    - while
+-- och       - and
+-- bryt      - break
+-- gör       - do
+-- annars    - else
+-- annarsom  - elseif
+-- slut      - end
+-- falskt    - false
+-- sant      - true
+-- för       - for
+-- funktion  - function
+-- om        - if
+-- i         - in
+-- lokal     - local
+-- ingenting - nil
+-- inte      - not
+-- eller     - or
+-- upprepa   - repeat
+-- tills     - until
+-- ge        - return
+-- utför     - then
+-- medan     - while
 ```
 
 ### Vim installation

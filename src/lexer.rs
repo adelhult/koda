@@ -48,6 +48,8 @@ pub enum Token {
     While,
     #[token("utför")]
     Then,
+    #[token("ingenting")]
+    Nil,
     #[token("(")]
     LeftParenthesis,
     #[token(")")]
@@ -72,6 +74,8 @@ pub enum Token {
     AssignmentOperator,
     #[token("..")]
     Concat,
+    #[token("...")]
+    VarArgs,
     #[token("#")]
     LengthOperator,
     #[token("==")]
