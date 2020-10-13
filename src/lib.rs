@@ -24,11 +24,10 @@ pub fn get_lua_state(env: Option<Vec<String>>) -> Result<Lua, rlua::Error>{
     lua.context(|lua_ctx| {
         let globals = lua_ctx.globals();
 
-        // Add _filnamn and _parametrar as
-        // global constants if we have an env
+        // Add env constants to the global scope
         if let Some(arguments) = env {
-            // add "_filnanmn" to globals
-            globals.set("_filnamn", arguments[0].clone())?;
+            // add "_FILNAMN" to globals
+            globals.set("_FILNAMN", arguments[0].clone())?;
 
             // add env arguments to argument_table,
             // skipping the first one (filename).
@@ -39,7 +38,7 @@ pub fn get_lua_state(env: Option<Vec<String>>) -> Result<Lua, rlua::Error>{
 
             // add the arguments_table to the global scope of the lua_ctx.
             // Note: the name should perhaps be changed.
-            globals.set("_parametrar", arguments_table)?;
+            globals.set("_PARAMETRAR", arguments_table)?;
         }
 
         // a replacement for print with support for special characters.

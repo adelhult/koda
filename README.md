@@ -72,10 +72,10 @@ funktion plus_tio(x)
 slut
 
 -- hämta namnet på den fil som körs:
-skriv(_filnamn)
+skriv(_FILNAMN)
 
 -- hämta eventuella cli argument:
-för k, v i ipar(_parametrar) gör
+för k, v i ipar(_PARAMETRAR) gör
     skriv(v)
 slut
 
