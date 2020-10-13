@@ -40,6 +40,11 @@ pub fn get_lua_state(env: Option<Vec<String>>) -> Result<Lua, Error>{
             // Note: the name should perhaps be changed.
             globals.set("_PARAMETRAR", arguments_table)?;
         }
+        
+        // Add the current Koda package version to the global scope
+        if let Some(version) = option_env!("CARGO_PKG_VERSION") {
+            globals.set("_KODA_VERSION", format!("Koda {}",version))?;
+        }
 
         // a replacement for print with support for special characters.
         let skriv = lua_ctx.create_function(|_, msg: String| {
