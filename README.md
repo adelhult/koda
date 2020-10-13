@@ -10,6 +10,12 @@ However, it is of course preferable to learn an actually usable language with co
 [Download the executable file](https://github.com/adelhult/koda/releases/tag/v0.1), and drag a *.kod* or *.lua* file on top of it to run that file. Alternatively, you can of course add Koda to your path and run:
 `koda filename.kod`
 
+### Todo
+* Update manual/readme
+* create new binaries
+* somewhat stable (and nicer) api, more global functions should be added and perhaps adjust a few keywords
+* Add the missing tokens (multi-line comment and "...")
+
 ### Example code
 ```
 -- Koda, exempelkod
