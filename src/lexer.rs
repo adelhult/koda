@@ -102,9 +102,8 @@ pub enum Token {
     Subtract,
     #[token("^")]
     Exponent,
-    #[regex(r"--.*")]
-    SingleLineComment,
-    //todo: multiline comment!
+    #[regex(r"--\[\[[^(\]\])]*\]\]|--.*")]
+    Comment,
     #[regex(r#""[^"\\]*(?:\\.[^"\\]*)*""#, |lex| lex.slice().parse())]
     #[regex(r#"'[^'\\]*(?:\\.[^'\\]*)*'"#, |lex| lex.slice().parse())]
     Str(String),
