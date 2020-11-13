@@ -102,7 +102,7 @@ pub enum Token {
     Subtract,
     #[token("^")]
     Exponent,
-    #[regex(r"--\[\[[^(\]\])]*\]\]|--.*")]
+    #[regex(r"--\[\[[^\]]*\]\]|--.*")]
     Comment,
     #[regex(r#""[^"\\]*(?:\\.[^"\\]*)*""#, |lex| lex.slice().parse())]
     #[regex(r#"'[^'\\]*(?:\\.[^'\\]*)*'"#, |lex| lex.slice().parse())]
