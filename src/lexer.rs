@@ -107,8 +107,11 @@ pub enum Token {
     #[regex(r#""[^"\\]*(?:\\.[^"\\]*)*""#, |lex| lex.slice().parse())]
     #[regex(r#"'[^'\\]*(?:\\.[^'\\]*)*'"#, |lex| lex.slice().parse())]
     Str(String),
-    #[regex(r"[a-zA-ZåäöÅÄÖ\d_-]+", |lex| lex.slice().parse(), priority=1)]
+    #[regex(r"[a-zA-ZåäöÅÄÖ_-]+\d*[a-zA-ZåäöÅÄÖ_-]*", |lex| lex.slice().parse(), priority=1)]
     Ident(String),
+    // note, .5 is not supported
+    #[regex(r"\d+\.?[\d]*", |lex| lex.slice().parse())]
+    Number(String),
     #[error]
     #[regex(r"[ \t\r\n\f]+", logos::skip)]
     Error

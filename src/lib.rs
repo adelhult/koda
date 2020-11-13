@@ -76,6 +76,15 @@ pub fn get_lua_state(env: Option<Vec<String>>)-> Result<Lua, Error>{
         })?;
         globals.set("__oe__ppna", open_fn)?;
 
+        // function that prints what will be lexed
+        let tokens = lua_ctx.create_function(|_, s: String| {
+            for token in lex(&s) {
+                println!("{:?}", token);
+            }
+            Ok(())
+        })?;
+        globals.set("_TOKENS", tokens)?;
+
         // Load the prelude
         lua_ctx
             .load(get_prelude())
@@ -148,6 +157,7 @@ fn convert_token(token: &Token) -> String{
         Token::Exponent             => "^".to_string(),
         Token::Str(value)           => value.clone(),
         Token::Ident(value)         => replace_swe_chars(&value),
+        Token::Number(value)        => value.clone(),
         _                           => String::from("")
     }
 }
