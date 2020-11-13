@@ -10,16 +10,14 @@ use lexer::{Token, lex};
 
 /// Transpile from Koda code to valid Lua code
 pub fn transpile(code: &str) -> String {
-    let code = lex(&code)
-                .iter()
-                .map(|token| convert_token(token))
-                .collect::<Vec<String>>()
-                .join(" ");
-    
-    code
+    lex(&code)
+        .iter()
+        .map(|token| convert_token(token))
+        .collect::<Vec<String>>()
+        .join(" ")
 }
 
-pub fn get_lua_state(env: Option<Vec<String>>) -> Result<Lua, Error>{
+pub fn get_lua_state(env: Option<Vec<String>>)-> Result<Lua, Error>{
     let lua = Lua::new();
     lua.context(|lua_ctx| {
         let globals = lua_ctx.globals();
