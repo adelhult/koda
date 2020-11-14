@@ -156,7 +156,7 @@ fn convert_token(token: &Token) -> String{
         Token::Subtract             => "-".to_string(),
         Token::Exponent             => "^".to_string(),
         Token::Str(value)           => value.clone(),
-        Token::Ident(value)         => replace_swe_chars(&value),
+        Token::Ident(value)         => escape_keywords(&replace_swe_chars(&value)),
         Token::Number(value)        => value.clone(),
         _                           => String::from("")
     }
@@ -182,10 +182,24 @@ fn replace_swe_chars(code: &str) -> String {
     replaced_code
 }
 
+/// Escape reserved lua keywords
+fn escape_keywords(token: &str) -> String {
+    let keywords = ["and", "break", "do", "else",
+                    "elseif", "end", "false", "for",
+                    "function", "if", "in", "local", "nil",
+                    "not", "or", "repeat", "return", "then",
+                    "true", "until", "while"];
 
-/// Convert from the special strings to normal
-/// Swedish letters again
-pub fn show_swedish_chars(msg: &str) -> String {
+    if keywords.contains(&token) {
+       String::from(format!("__escaped_lua_keyword__{}", token)) 
+    } else {
+        String::from(token)
+    }
+}
+
+/// Convert from the escaped strings
+/// back to what the user actually wrote.
+pub fn show_escaped_idents(msg: &str) -> String {
     let mut replaced_msg = String::from(msg);
 
     let idents : HashMap<&str, Regex> = [
@@ -195,6 +209,7 @@ pub fn show_swedish_chars(msg: &str) -> String {
         ("Å", Regex::new(r"__AO__").unwrap()),
         ("Ä", Regex::new(r"__AE__").unwrap()),
         ("Ö", Regex::new(r"__OE__").unwrap()),
+        ("", Regex::new(r"__escaped_lua_keyword").unwrap()),
     ].iter().cloned().collect();
 
     for (ident_sve, re) in idents {
@@ -219,7 +234,7 @@ pub fn show_swedish_values(value: &Value) -> String{
         Value::Function(_)      => String::from("funktion"),
         Value::Thread(_)        => String::from("tråd"),
         Value::UserData(_)      => String::from("userData"),
-        Value::Error(error)     => show_swedish_chars(&error.to_string()),
+        Value::Error(error)     => show_escaped_idents(&error.to_string()),
     }
 }
 
@@ -230,17 +245,17 @@ pub fn error_repr(e: Error) -> String{
             format!("Fel: Det är ett syntax-fel som har uppstått.\n\
             De brukar bero på att man stavat fel på en variabel eller glömt något tecken.\n\
             Här är ett meddelande på engelska som berättar om felet: \n{}", 
-            show_swedish_chars(&message))
+            show_escaped_idents(&message))
 
         },
         Error::RuntimeError(message) => {
             format!("Fel: Det är ett runtime-fel som har uppstått.\n\
             Här är ett meddelande på engelska som berättar om felet: \n{}",
-            show_swedish_chars(&message))
+            show_escaped_idents(&message))
         },
         e => {
             format!("Fel: Här är en text på engelska där felet förklaras: \n{}", 
-                show_swedish_chars(&(e.to_string()))
+            show_escaped_idents(&e.to_string())
             )
         }
     }
