@@ -106,7 +106,6 @@ pub fn repl() {
 /// Returns true if you should quit the repl
 fn run_command(c: &str) -> u8 {
     let help = "För att lära dig mer om Koda, besök https://github.com/adelhult/koda";
-    println!("{}", c);
     match c {
         ":q" => 0,
         ":quit" => 0,
