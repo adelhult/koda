@@ -209,7 +209,7 @@ pub fn show_escaped_idents(msg: &str) -> String {
         ("Å", Regex::new(r"__AO__").unwrap()),
         ("Ä", Regex::new(r"__AE__").unwrap()),
         ("Ö", Regex::new(r"__OE__").unwrap()),
-        ("", Regex::new(r"__escaped_lua_keyword").unwrap()),
+        ("", Regex::new(r"__escaped_lua_keyword__").unwrap()),
     ].iter().cloned().collect();
 
     for (ident_sve, re) in idents {
