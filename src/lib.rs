@@ -10,9 +10,17 @@ use lexer::{Token, lex};
 
 /// Transpile from Koda code to valid Lua code
 pub fn transpile(code: &str) -> String {
+    let mut next_is_then = false;
+    // we want to use the same keyword in Koda to represent
+    // both "do" and "then". This flag keep tracks
+    // of the context and when to transpile to which of the keywords.
+    // Note: since Lua does not support "if expressions"/ternary operators,
+    // I don't think I need to keep track of the number of "If"'s in a row
+    // since it should always be one or zero. 
+
     lex(&code)
         .iter()
-        .map(|token| convert_token(token))
+        .map(|token| convert_token(token, &mut next_is_then))
         .collect::<Vec<String>>()
         .join(" ")
 }
@@ -106,18 +114,15 @@ pub fn run_lua_code(code: &str, arguments: &[String]) -> Result<(), Error>{
 }
 
 /// Convert Token to Lua code (stored in a String).
-fn convert_token(token: &Token) -> String{
+fn convert_token(token: &Token, next_is_then:&mut bool) -> String{
     match token {
         Token::And                  => "and".to_string(),
         Token::Break                => "break".to_string(),
-        Token::Do                   => "do".to_string(),
         Token::Else                 => "else".to_string(),
-        Token::Elseif               => "elseif".to_string(),
         Token::End                  => "end".to_string(),
         Token::False                => "false".to_string(),
         Token::For                  => "for".to_string(),
         Token::Function             => "function".to_string(),
-        Token::If                   => "if".to_string(),
         Token::In                   => "in".to_string(),
         Token::Local                => "local".to_string(),
         Token::Not                  => "not".to_string(),
@@ -127,7 +132,6 @@ fn convert_token(token: &Token) -> String{
         Token::True                 => "true".to_string(),
         Token::Until                => "until".to_string(),
         Token::While                => "while".to_string(),
-        Token::Then                 => "then".to_string(),
         Token::Nil                  => "nil".to_string(),
         Token::VarArgs              => "...".to_string(),
         Token::LeftParenthesis      => "(".to_string(),
@@ -158,7 +162,26 @@ fn convert_token(token: &Token) -> String{
         Token::Str(value)           => value.clone(),
         Token::Ident(value)         => escape_keywords(&replace_swe_chars(&value)),
         Token::Number(value)        => value.clone(),
-        _                           => String::from("")
+        
+        Token::Elseif => {
+            *next_is_then = true;
+            "elseif".to_string()
+        },
+
+        Token::If => {
+            *next_is_then = true;
+            "if".to_string()
+        },
+
+        Token::Do => (
+            if *next_is_then {
+                "then"
+            } else {
+                "do"
+            }
+        ).to_string(),
+        
+        _ => String::from("")
     }
 }
 

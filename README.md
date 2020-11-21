@@ -29,9 +29,9 @@ skriv("Hej på dig!")
 namn = fråga("Vad är ditt namn?")
 
 -- if-satser
-om namn == "anna" utför
+om namn == "anna" gör
     skriv("Hej Anna!")
-annarsom namn == "erik" utför
+annarsom namn == "erik" gör
     skriv("Hej Erik!")
 annars
     skriv("Hej " .. namn .. "! Kul att träffa dig.")
@@ -85,16 +85,10 @@ för k, v i ipar(_PARAMETRAR) gör
     skriv(v)
 slut
 
--- Fler funktioner:
--- gemener(s)       - kallar på string.lower(s)
--- versaler(s)      - kallar på string.upper(s)
--- tillsträng(n)    - kallar på tostring(n)
--- tillnummer(s)    - kallar på tonumber(s)
-
 -- Alla nyckelord:
 -- och       - and
 -- bryt      - break
--- gör       - do
+-- gör       - do || then (beroende på kontexten)
 -- annars    - else
 -- annarsom  - elseif
 -- slut      - end
@@ -111,7 +105,6 @@ slut
 -- upprepa   - repeat
 -- tills     - until
 -- ge        - return
--- utför     - then
 -- medan     - while
 ```
 

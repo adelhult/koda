@@ -46,8 +46,6 @@ pub enum Token {
     Until,
     #[token("medan")]
     While,
-    #[token("utför")]
-    Then,
     #[token("ingenting")]
     Nil,
     #[token("(")]
