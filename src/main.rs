@@ -1,13 +1,15 @@
 use rlua::{Error, MultiValue};
-use koda::{run_lua_code, 
-           transpile,
-           get_lua_state,
-           show_swedish_values,
-           error_repr};
+use rustyline::Editor;
 use std::path::PathBuf;
 use::std::env;
 use std::fs;
-use rustyline::Editor;
+use koda::{
+    run_lua_code, 
+    transpile,
+    get_lua_state,
+    show_swedish_values,
+    error_repr}
+;
 
 fn main() {
     let args: Vec<String> = env::args().skip(1).collect();
@@ -51,7 +53,6 @@ pub fn repl() {
     let lua = get_lua_state(None).unwrap();
     lua.context(|ctx| {
         let mut editor = Editor::<()>::new();
-
         loop {
             let mut prompt = "> ";
             let mut line = String::new();
@@ -61,6 +62,15 @@ pub fn repl() {
                     Ok(input) => line.push_str(&input),
                     Err(_) => return,
                 }
+
+                // did the user input a repl command?
+                if let Some(':') = line.chars().next() {
+                    match run_command(&line) {
+                        0 => return,
+                        _ => break,
+                    };
+                }
+
                 let code = transpile(&line);
 
                 match ctx.load(&code).eval::<MultiValue>() {
@@ -91,4 +101,28 @@ pub fn repl() {
             }
         }
     });
+}
+
+/// Returns true if you should quit the repl
+fn run_command(c: &str) -> u8 {
+    let help = "För att lära dig mer om Koda, besök https://github.com/adelhult/koda";
+    println!("{}", c);
+    match c {
+        ":q" => 0,
+        ":quit" => 0,
+        ":a" => 0,
+        ":avsluta" => 0,
+        ":h" => {
+            println!("{}", help);
+            1
+        }
+        ":hjälp" => {
+            println!("{}", help);
+            1
+        }
+        _ => {
+            println!("Okänt kommando. Prova ':avsluta' eller ':hjälp'");
+            1
+        },
+    }
 }
