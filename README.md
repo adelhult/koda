@@ -64,10 +64,7 @@ tills (x < 10)
 
 -- slumpa fram ett tal mellan
 -- 1 och 100. (Kallar på math.random(a, b))
-slumpa(1, 100)
-
--- slumpa ett tal mellan 1 - 6
-tärning()
+matte.slumpa(1, 100)
 
 -- öppna en katalog i en filutforskare
 -- eller en url i en webbläsare
