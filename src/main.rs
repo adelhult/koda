@@ -77,14 +77,16 @@ pub fn repl() {
                 match ctx.load(&code).eval::<MultiValue>() {
                     Ok(values) => {
                         editor.add_history_entry(line);
-                        println!(
-                            "{}",
-                            values
-                                .iter()
-                                .map(|value| show_swedish_values(&value))
-                                .collect::<Vec<_>>()
-                                .join("\t").green()
-                        );
+                        let output = values
+                                    .iter()
+                                    .map(|value| show_swedish_values(&value))
+                                    .collect::<Vec<_>>()
+                                    .join("\t");
+                        if cfg!(windows) {
+                            println!("{}", output);
+                        } else {
+                            println!("{}", output.green());
+                        }
                         break;
                     }
                     Err(Error::SyntaxError {
@@ -95,7 +97,11 @@ pub fn repl() {
                         prompt = ">> ";
                     }
                     Err(e) => {
-                        eprintln!("{}", error_repr(e).red());
+                        if cfg!(windows) {
+                            eprintln!("{}", error_repr(e));
+                        } else {
+                            eprintln!("{}", error_repr(e).red());
+                        }
                         break; 
                     }
                 }
