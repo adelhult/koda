@@ -7,8 +7,9 @@ Well, mostly just for fun and as a programming exercise. But a language/applicat
 However, it is of course preferable to learn an actually usable language with conventional syntax. 
 
 ### How do I use Koda?
-[Download the executable file](https://github.com/adelhult/koda/releases/tag/v0.1), and drag a *.kod* or *.lua* file on top of it to run that file. Alternatively, you can of course add Koda to your path and run:
+[Download the executable file](https://github.com/adelhult/koda/releases/tag/v0.2), and drag a *.kod* or *.lua* file on top of it to run that file. Alternatively, you can of course add Koda to your path and run it from the command-line:
 `koda filename.kod`
+Koda also comes with a REPL, start it by execting the program without giving any arguments.
 
 ### Todo
 * Update manual/readme
