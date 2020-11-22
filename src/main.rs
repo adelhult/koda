@@ -1,4 +1,5 @@
 use rlua::{Error, MultiValue};
+use colored::*;
 use rustyline::Editor;
 use std::path::PathBuf;
 use::std::env;
@@ -82,7 +83,7 @@ pub fn repl() {
                                 .iter()
                                 .map(|value| show_swedish_values(&value))
                                 .collect::<Vec<_>>()
-                                .join("\t")
+                                .join("\t").green()
                         );
                         break;
                     }
@@ -94,7 +95,7 @@ pub fn repl() {
                         prompt = ">> ";
                     }
                     Err(e) => {
-                        eprintln!("{}", error_repr(e));
+                        eprintln!("{}", error_repr(e).red());
                         break; 
                     }
                 }
