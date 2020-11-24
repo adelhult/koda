@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/adelhult/koda/master/icon.png" width="250px" align="left">
+<img src="https://raw.githubusercontent.com/adelhult/koda/master/koda_icon.png" width="230px" align="left">
 
 **Koda is a programming language with both keywords and variable names in Swedish. The Koda software transpiles your code to Lua which is then directly executed in a Lua runtime.** Basically, you can think of Koda as a small abstraction of top of Lua that just replaces the name of the keywords. Most of the grammar is the same as Lua’s, you can even use the Lua standard library in your code. However, Koda also provides a prelude of function translated into Swedish.
 ### Why create such a thing?
