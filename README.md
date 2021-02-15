@@ -1,6 +1,6 @@
-<img src="https://raw.githubusercontent.com/adelhult/koda/master/icon.png" width="250px" align="left">
+<img src="https://raw.githubusercontent.com/adelhult/koda/master/koda_icon.png" width="230px" align="left">
 
-**Koda is a programming language with both keywords and variable names in Swedish. The Koda software transpiles your code to Lua which is then directly executed in a Lua runtime.** Basically, you can think of Koda as a small abstraction of top of Lua that just replaces the name of the keywords. Most of the grammar is the same as Lua’s, you can even use the Lua standard library in your code. However, Koda also provides a prelude of function translated into Swedish.
+**Koda is a programming language with both keywords and variable names in Swedish. The Koda software transpiles your code to Lua which is then directly executed in a Lua runtime.** Basically, you can think of Koda as a small abstraction on top of Lua that just replaces the name of the keywords. Most of the grammar is the same as Lua’s, you can even use the Lua standard library in your code. However, Koda also provides a prelude of function translated into Swedish.
 ### Why create such a thing?
 Well, mostly just for fun and as a programming exercise. But a language/application such as Koda might be a bit useful if you try explaining programming to young children. Syntax in English can become barrier for young non-English speakers when trying to learn fundamental programming concepts. And being able to show a working code snippet with syntax in their native language can possibly make it easier to understand, in the same way as visual programming can be a helpful educational tool. However, it is of course preferable to learn an actually usable language with conventional syntax. 
 
