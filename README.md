@@ -12,7 +12,7 @@ Koda also comes with a REPL, start it by execting the program without giving any
 ### Example code
 ```
 -- Koda, exempelkod
--- (Notera att alla lua-funktionsutrop är giltiga och går att använda
+-- (Notera att alla lua-funktionsanrop är giltiga och går att använda
 -- precis som vanligt.)
 
 -- skriv text till användaren
